@@ -1,0 +1,14 @@
+# tcpapp host file
+# this file is for tcpapp
+
+node: tomahawk
+param: bufScheme { group: SharedBuf, type: enum(tor, e-t1, e-sp, b-t1, b-s),
+                   default: tor,
+                   desc: "buffer management scheme"
+                 }
+param: hashDefinition { group: TomaHawk, type: string, default: "some value",
+                        desc: "ECMP hash calculcation value"
+                   }
+
+port: jrp[1:128]
+
