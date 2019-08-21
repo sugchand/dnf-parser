@@ -1,5 +1,6 @@
 %{
 #include <stdio.h>
+#include "host.h"
 
 int yylex();
 int yyerror(char *s);
@@ -48,9 +49,9 @@ paramName:
 
 paramValue:
             string
-          | QUOTE string QUOTE  
+          | QUOTE string QUOTE
           | NUM
-          | ENUM OPEN_BRACKET enumSet CLOSE_BRACKET 
+          | ENUM OPEN_BRACKET enumSet CLOSE_BRACKET
 
 enumSet:
         enumValue
@@ -63,7 +64,7 @@ portSet:
        PORT COLON string OPEN_SQUARE_BRACKET portIndex CLOSE_SQUARE_BRACKET
 
 portIndex:
-         NUM
+           NUM
          | NUM COLON NUM
 
 string:
@@ -105,5 +106,6 @@ int main(int argc, char *argv[])
     if (!yyparse()) {
         printf("Successfully completed the token parsing\n");
     }
+    printHostConfig();
     return 0;
-} 
+}

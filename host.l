@@ -38,11 +38,11 @@ alpha       ([a-zA-Z_])+
                 }
 
 {DIGIT}+        {
-                      yylval.number = atof(yytext);                     
+                      yylval.number = atof(yytext);
                       return NUM;
                 }
 
-":"             { return COLON; 
+":"             { return COLON;
                 }
 "="             { return EQUAL;
                 }
@@ -59,7 +59,7 @@ alpha       ([a-zA-Z_])+
                 }
 ")"             {
                   return CLOSE_BRACKET;
-                }  
+                }
 "/"             {
                   return SLASH;
                 }
