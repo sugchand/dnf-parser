@@ -5,7 +5,7 @@
 /*********            DNF STACK OPERATIONS ***********************************/
 /*****************************************************************************/
 struct dnf_stack *dnf_stack_top = NULL;
-int dnf_stack_push(struct dnf_obj *obj)
+int dnf_stack_push(struct dnf_node *obj)
 {
     struct dnf_stack *new_val;
     new_val = (struct dnf_stack *)malloc(sizeof (struct dnf_stack));
@@ -15,12 +15,12 @@ int dnf_stack_push(struct dnf_obj *obj)
 }
 
 /* Pass a valid memory location to copy the data, as pop will free up */
-struct dnf_obj *dnf_stack_pop(void)
+struct dnf_node *dnf_stack_pop(void)
 {
     if (dnf_stack_top != NULL && dnf_stack_top->element.obj != NULL)
     {
         struct dnf_stack *stackTop = dnf_stack_top;
-        struct dnf_obj *stack_val = dnf_stack_top->element.obj;
+        struct dnf_node *stack_val = dnf_stack_top->element.obj;
         /* Update the stack top to new position */
         dnf_stack_top = dnf_stack_top->next;
         free(stackTop);
@@ -50,36 +50,36 @@ void free_dnf_stack(void)
 
 /******************** DNF OBJECT TREE HIERARCHY HANDLERS ******************/
 unsigned int curr_dnf_level = 0;
-struct dnf_obj *rootDnfNode = NULL;
+struct dnf_node *rootDnfNode = NULL;
 
-void set_dnf_root_node(struct dnf_obj *obj)
+void set_dnf_root_node(struct dnf_node *obj)
 {
     rootDnfNode = obj;
 }
 
-struct dnf_obj *get_dnf_root_node(void)
+struct dnf_node *get_dnf_root_node(void)
 {
     return rootDnfNode;
 }
 
-unsigned int get_dnf_obj_level(void)
+unsigned int get_dnf_node_level(void)
 {
     return curr_dnf_level;
 }
 
-void increment_dnf_obj_level(void)
+void increment_dnf_node_level(void)
 {
     curr_dnf_level++;
 }
 
-void decrement_dnf_obj_level(void)
+void decrement_dnf_node_level(void)
 {
     curr_dnf_level--;
 }
 
-int update_dnf_obj_in_tree(struct dnf_obj *curr)
+int update_dnf_node_in_tree(struct dnf_node *curr)
 {
-    struct dnf_obj *prev = dnf_stack_pop();
+    struct dnf_node *prev = dnf_stack_pop();
     if (prev == NULL) {
         return -1;
     }
@@ -129,7 +129,7 @@ int update_dnf_obj_in_tree(struct dnf_obj *curr)
     return 0;
 }
 
-void free_dnf_tree(struct dnf_obj *dnf_element)
+void free_dnf_tree(struct dnf_node *dnf_element)
 {
     if (dnf_element != NULL)
     {
@@ -141,9 +141,9 @@ void free_dnf_tree(struct dnf_obj *dnf_element)
 
 /************** DNF CLASS MAP *********************************************/
 
-struct dnf_obj_class_map dnf_map;
+struct dnf_node_class_map dnf_map;
 
-void register_dnf_obj_class(const struct dnf_obj_class *class_obj)
+void register_dnf_node_class(const struct dnf_node_class *class_obj)
 {
     if (class_obj != NULL && dnf_map.tot_cnt < MAX_CLASS_OBJ)
     {
@@ -155,7 +155,7 @@ void register_dnf_obj_class(const struct dnf_obj_class *class_obj)
 /* So naive approach to loop through the array to find a dnf class.
  * Need to replace it with a hash based map in some point in time,
  */
-const struct dnf_obj_class *get_dnf_obj_class(char *type)
+const struct dnf_node_class *get_dnf_node_class(char *type)
 {
     int i;
     for(i = 0; i < dnf_map.tot_cnt; i++)

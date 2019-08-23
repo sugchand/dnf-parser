@@ -46,14 +46,14 @@ open_curly_bracket:
                     OPEN_CURLY_BRACKET
                     {
                         // update the tree level
-                        increment_dnf_obj_level();
+                        increment_dnf_node_level();
                     }
 
 close_curly_bracket:
                     CLOSE_CURLY_BRACKET
                     {
                         // update the tree level
-                        decrement_dnf_obj_level();
+                        decrement_dnf_node_level();
                     }
 
 paramValues:

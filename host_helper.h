@@ -41,7 +41,7 @@ struct paramKeyValue {
  * value can be any type of data to store
  */
 struct hostConfig {
-    struct dnf_obj dnf_data;
+    struct dnf_node dnf_data;
     int type; /* type of obj */
     struct paramKeyValue keyData;
 };

@@ -4,8 +4,8 @@
 #include "host_helper.h"
 #include "dnf_helper.h"
 
-bool is_host_object(struct dnf_obj *obj);
-static struct hostConfig *dnf_hostConfigCast(const struct dnf_obj *obj);
+bool is_host_object(struct dnf_node *obj);
+static struct hostConfig *dnf_hostConfigCast(const struct dnf_node *obj);
 
 char *getParamTypeString(enum paramKeyValType paramType)
 {
@@ -45,7 +45,7 @@ void printHostParamKeyValue(struct paramKeyValue *keyval,
             printf("\n Data           : %f", data->floatValue);
             break;
         case str_param:
-            printf("\n Data            : %s", data->strValue);
+            printf("\n Data           : %s", data->strValue);
             break;
         case enum_param:
             printEnumDataSet(&data->enumVal);
@@ -57,7 +57,7 @@ void printHostParamKeyValue(struct paramKeyValue *keyval,
 }
 
 /* Print all elements in same level and childrens. */
-void printDnfConfig(struct dnf_obj *obj)
+void printDnfConfig(struct dnf_node *obj)
 {
     if (obj)
     {
@@ -83,7 +83,7 @@ void printDnfConfig(struct dnf_obj *obj)
 void printHostConfig(void)
 {
     printf("\n ********** Host Configuration ********** \n");
-    struct dnf_obj *obj = get_dnf_root_node();
+    struct dnf_node *obj = get_dnf_root_node();
     printDnfConfig(obj);
 }
 
@@ -92,7 +92,7 @@ void printHostConfig(void)
 /************** Call back functions for host config ***************************/
 /******************************************************************************/
 
-static struct hostConfig *dnf_hostConfigCast(const struct dnf_obj *obj)
+static struct hostConfig *dnf_hostConfigCast(const struct dnf_node *obj)
 {
     return CONTAINER_OF(obj, struct hostConfig, dnf_data);
 }
@@ -105,7 +105,7 @@ void set_default_host_config(struct hostConfig *conf)
     conf->dnf_data.level = 0;
     conf->type = 0;
 }
-struct dnf_obj *host_config_alloc(void)
+struct dnf_node *host_config_alloc(void)
 {
     /* Allocate the host object */
     struct hostConfig *config =(struct hostConfig *)malloc(sizeof(struct hostConfig));
@@ -139,14 +139,14 @@ int insert_key_value(struct paramKeyValue *keyval, int type, char *key,
     }
 }
 
-void host_config_set(struct dnf_obj *obj, char *key, void *data, int type)
+void host_config_set(struct dnf_node *obj, char *key, void *data, int type)
 {
     struct hostConfig *config = dnf_hostConfigCast(obj);
     config->type = type;
     insert_key_value(&config->keyData, type, key, data);
 }
 
-void host_parent_update(struct dnf_obj *obj, struct dnf_obj *parent)
+void host_parent_update(struct dnf_node *obj, struct dnf_node *parent)
 {
     if (obj == NULL)
     {
@@ -157,8 +157,8 @@ void host_parent_update(struct dnf_obj *obj, struct dnf_obj *parent)
     host_obj->dnf_data.parent = parent;
 }
 
-void host_child_update(struct dnf_obj *obj,
-                       struct dnf_obj *child)
+void host_child_update(struct dnf_node *obj,
+                       struct dnf_node *child)
 {
     if (obj == NULL)
     {
@@ -189,7 +189,7 @@ void host_child_update(struct dnf_obj *obj,
     child_conf->dnf_data.next = child;
 }
 
-void host_config_dealloc(struct dnf_obj *obj)
+void host_config_dealloc(struct dnf_node *obj)
 {
     if (obj != NULL) {
         struct hostConfig *conf = dnf_hostConfigCast(obj);
@@ -197,7 +197,7 @@ void host_config_dealloc(struct dnf_obj *obj)
     }
 }
 
-static const struct dnf_obj_class host_config_class = {
+static const struct dnf_node_class host_config_class = {
     .type = "host_config",
     .alloc = host_config_alloc,
     .set_values = host_config_set,
@@ -206,12 +206,12 @@ static const struct dnf_obj_class host_config_class = {
     .dealloc =host_config_dealloc
 };
 
-const struct dnf_obj_class *get_host_obj_class(void)
+const struct dnf_node_class *get_host_obj_class(void)
 {
-    return get_dnf_obj_class("host_config");
+    return get_dnf_node_class("host_config");
 }
 
-bool is_host_object(struct dnf_obj *obj)
+bool is_host_object(struct dnf_node *obj)
 {
     return (obj->obj_class->set_values == host_config_set);
 }
@@ -223,9 +223,9 @@ bool is_host_object(struct dnf_obj *obj)
 void hostConfigInit(void)
 {
     /* Register a new obj class type */
-    register_dnf_obj_class(&host_config_class);
-    const struct dnf_obj_class *host_class = get_host_obj_class();
-    struct dnf_obj *obj = host_class->alloc();
+    register_dnf_node_class(&host_config_class);
+    const struct dnf_node_class *host_class = get_host_obj_class();
+    struct dnf_node *obj = host_class->alloc();
     struct hostConfig *hostconf = dnf_hostConfigCast(obj);
     hostconf->dnf_data.obj_class = host_class;
     hostconf->dnf_data.level = 0;
@@ -243,7 +243,7 @@ void hostConfigInit(void)
      */
     set_dnf_root_node(&hostconf->dnf_data);
     /* Increment the current object level for parameters */
-    increment_dnf_obj_level();
+    increment_dnf_node_level();
 }
 
  /* There are three main cases need to take care
@@ -254,7 +254,7 @@ void hostConfigInit(void)
 int update_host_obj_in_tree(struct hostConfig *conf)
 {
     int ret = 0;
-    ret = update_dnf_obj_in_tree(&conf->dnf_data);
+    ret = update_dnf_node_in_tree(&conf->dnf_data);
     if (ret < 0)
     {
         printf("\n Failed to update new config in tree ");
@@ -268,11 +268,11 @@ int update_host_obj_in_tree(struct hostConfig *conf)
 int hostConfigAdd(char *key, void *value, int type)
 {
     struct hostConfig *host_obj;
-    const struct dnf_obj_class *host_class = get_host_obj_class();
-    struct dnf_obj *obj = host_class->alloc();
+    const struct dnf_node_class *host_class = get_host_obj_class();
+    struct dnf_node *obj = host_class->alloc();
     host_obj = dnf_hostConfigCast(obj);
     host_obj->dnf_data.obj_class = host_class;
-    host_obj->dnf_data.level = get_dnf_obj_level();
+    host_obj->dnf_data.level = get_dnf_node_level();
     host_obj->dnf_data.obj_class->set_values(&host_obj->dnf_data,
                                 key, value, type);
     return update_host_obj_in_tree(host_obj);
