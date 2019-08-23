@@ -33,7 +33,7 @@ alpha       ([a-zA-Z_])+
                       else if(!strncmp(yytext, "enum", sizeof("enum"))) {
                           return (ENUM);
                       }
-                      sscanf(yytext, "%s", yylval.name);
+                      sscanf(yytext, "%s", yylval.str);
                       return (STRING);
                 }
 

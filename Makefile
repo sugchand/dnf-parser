@@ -21,7 +21,8 @@ all: $(OBJ)
 	$(CC) -o $(BIN) $^ $(LDFLAGS)
 
 parser:
-	flex -dl $(LEXFILE); \
+	#flex -dl $(LEXFILE);  debug flex lexical analysis
+	flex -l $(LEXFILE); \
 	bison -tdv $(BISONFILE)
 
 -include $(DEP)
